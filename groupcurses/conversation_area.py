@@ -2,18 +2,28 @@ import urwid
 
 class ConversationArea(urwid.Filler):
     def __init__(self):
-        self.column1 = urwid.Text(u"column1")
-        self.column2 = urwid.Text(u"column2")
-        self.column_wrapper = urwid.Columns([self.column1, self.column2])
-        super().__init__(self.column_wrapper)
+        self.conversation_list = ConversationList()
+        self.column2 = urwid.Filler(urwid.Text(u"column2"))
+        self.column_wrapper = ConversationColumns(self.conversation_list, self.column2)
+        super().__init__(self.column_wrapper, valign='top', height=('relative', 100))
     def request_conversations_update(self):
         urwid.emit_signal(self, 'get-conversations')
     def update_conversation_list(self, groups, direct_messages):
-        self.column1.set_text(direct_messages[0]['other_user']['name'])
+        for conversation in direct_messages:
+            other_user = conversation['other_user']
+            self.conversation_list.conversation_list.contents.append(urwid.Text(other_user['name']))
 
-class ConversationList():
+class ConversationColumns(urwid.Columns):
+    def __init__(self, conversation_list, conversation_messages):
+        self.conversation_list = conversation_list
+        self.conversation_messages = conversation_messages
+        super().__init__([(self.conversation_list, self.options(box_widget=True)), (self.conversation_messages, self.options(box_widget=True))])
+
+class ConversationList(urwid.ListBox):
     def __init__(self):
-        pass
+        self.list = urwid.SimpleListWalker([urwid.Text(u"Test1")])
+        self.list.contents.append(urwid.Text(u"Test"))
+        super().__init__(self.list)
 
 class Conversation():
     def __init__(self):

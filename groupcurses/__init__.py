@@ -6,6 +6,7 @@ import urwid
 from api import API
 from configuration import Configuration
 from conversation_area import ConversationArea
+from input_area import InputArea
 
 class GroupCursesApp(urwid.MainLoop):
     def __init__(self):
@@ -20,10 +21,15 @@ class GroupCursesApp(urwid.MainLoop):
         self.input_area = InputArea() 
         self.conversation_area = ConversationArea()
         self.main_screen = urwid.Frame(self.conversation_area, header=self.header_area, footer=self.input_area)
+        self.palette = [
+                ('statusbar', 'black', 'light gray'),
+                ('input_mode', 'white', 'dark red'),
+                ('normal_mode', 'black', 'dark green')
+                ]
         
         self.register_signal_emitters()
         self.connect_signal_handlers()
-        super().__init__(self.main_screen, unhandled_input=self.navigation_handler)
+        super().__init__(self.main_screen, self.palette, unhandled_input=self.navigation_handler)
         self.conversation_area.request_conversations_update()
 
     def register_signal_emitters(self):
@@ -40,15 +46,20 @@ class GroupCursesApp(urwid.MainLoop):
         if key is 'q':
             raise urwid.ExitMainLoop()
         if key is 'i':
+            self.input_area.set_mode('compose')
             self.main_screen.focus_position = 'footer'
+        if key is 'c':
+            self.main_screen.focus_position = 'body'
+            self.conversation_area.focus_position = 0
         if key is 'esc':
+            self.input_area.set_mode('normal')
             self.main_screen.focus_position = 'body'
 
     def send_message_handler(self, message):
         self.input_area.input_field.edit_text = u"Submitted - " + message
 
     def show_status_message_handler(self, message, severity='info'):
-        self.input_area.status_line.set_text(message)
+        self.input_area.set_message(message, severity)
 
     def get_conversations_handler(self):
         groups = self.api.get('groups')
@@ -58,20 +69,7 @@ class GroupCursesApp(urwid.MainLoop):
 class HeaderArea(urwid.Padding):
     def __init__(self):
         self.title = urwid.Text(u"i:Compose c:Browse n:New q:Quit ESC:Main Mode")
-        super().__init__(self.title)
-
-class InputArea(urwid.Pile):
-    def __init__(self):
-        self.status_line = urwid.Text(u"Statusbar")
-        self.input_field = urwid.Edit()
-        super().__init__([self.status_line, self.input_field], focus_item=self.input_field)
-    def keypress(self, size, key):
-        key = super().keypress(size, key)
-        if key is not 'enter':
-            return key
-        else:
-            message_text = self.input_field.get_edit_text()
-            urwid.emit_signal(self, 'message-send', message_text)
+        super().__init__(urwid.AttrMap(self.title, 'statusbar'))
 
 if __name__ == "__main__":
     App = GroupCursesApp()
