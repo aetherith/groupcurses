@@ -24,7 +24,8 @@ class GroupCursesApp(urwid.MainLoop):
         self.palette = [
                 ('statusbar', 'black', 'light gray'),
                 ('input_mode', 'white', 'dark red'),
-                ('normal_mode', 'black', 'dark green')
+                ('normal_mode', 'black', 'dark green'),
+                ('highlight', 'black', 'light gray'),
                 ]
         
         self.register_signal_emitters()
