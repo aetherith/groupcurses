@@ -1,3 +1,4 @@
+import time
 import urwid
 
 class ConversationArea(urwid.Filler):
@@ -31,8 +32,9 @@ class ConversationArea(urwid.Filler):
     def display_selected_conversation(self):
         conversation = self.conversation_list.get_focused_conversation()
         self.message_area.clear()
+        conversation.append_message('system', time.strftime("%H:%M:%S"), 'refresh')
         for message in conversation.messages:
-            self.message_area.append(message)
+            self.message_area.append(message.get_widget())
 
 class ConversationColumns(urwid.Columns):
     def __init__(self, conversation_list, message_area):
@@ -45,10 +47,8 @@ class ConversationList(urwid.ListBox):
         self.list = urwid.SimpleFocusListWalker([])
         super().__init__(self.list)
     def get_focused_conversation(self):
-        # Get index of the focused element out of the returned tuple
-        focused_element_index = self.list.get_focus()[1]
-        # Get the AttrMap that wraps our text.
-        focused_element_wrapper = self.list[focused_element_index]
+        # Get the AttrMap wrapper of the focused element out of the tuple
+        focused_element_wrapper = self.list.get_focus()[0]
         focused_element = focused_element_wrapper.original_widget
         return focused_element
 
@@ -56,16 +56,18 @@ class Conversation(urwid.Text):
     def __init__(self, name, conversation_type):
         self.name = name
         self.conversation_type = conversation_type
-        self.messages = [urwid.Text("I'm a Message")]
+        self.messages = [Message('Jess', '12:30', 'Test'), Message('me', '12:31', 'Test2')]
         super().__init__(name)
     def selectable(self):
         return True
     def keypress(self, size, key):
         return key
+    def append_message(self, sender, date, message):
+        self.messages.append(Message(sender, date, message))
 
 class ConversationMessageArea(urwid.ListBox):
     def __init__(self):
-        self.messages = urwid.SimpleListWalker([urwid.Text(u"test message")])
+        self.messages = urwid.SimpleListWalker([])
         super().__init__(self.messages)
     def append(self, message):
         self.messages.append(message)
@@ -73,5 +75,11 @@ class ConversationMessageArea(urwid.ListBox):
         self.messages.clear()
 
 class Message():
-    def __init__(self):
-        pass
+    def __init__(self, sender, date, message):
+        self.sender = sender
+        self.date = date
+        self.message = message
+    def get_widget(self):
+        message_widget = urwid.Text(self.message)
+        sender_widget = urwid.Text('(' + self.date + ') ' + self.sender + ': ')
+        return urwid.Columns([('pack', sender_widget), message_widget])

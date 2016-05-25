@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # encoding: utf-8
+import time
+import threading
 
 import urwid
 
@@ -27,10 +29,11 @@ class GroupCursesApp(urwid.MainLoop):
                 ('normal_mode', 'black', 'dark green'),
                 ('highlight', 'black', 'light gray'),
                 ]
-        
+       
         self.register_signal_emitters()
         self.connect_signal_handlers()
         super().__init__(self.main_screen, self.palette, unhandled_input=self.navigation_handler)
+        self.set_alarm_in(15, self.conversation_refresh_handler)
         self.conversation_area.request_conversations_update()
 
     def register_signal_emitters(self):
@@ -42,7 +45,10 @@ class GroupCursesApp(urwid.MainLoop):
         urwid.connect_signal(self.api, 'show-status-message', self.show_status_message_handler)
         urwid.connect_signal(self.input_area, 'message-send', self.send_message_handler)
         urwid.connect_signal(self.conversation_area, 'get-conversations', self.get_conversations_handler)
-    
+   
+    def conversation_refresh_handler(self, main_loop, user_data):
+        self.conversation_area.display_selected_conversation()
+        self.set_alarm_in(15, self.conversation_refresh_handler)
     def navigation_handler(self, key):
         if key is 'q':
             raise urwid.ExitMainLoop()
@@ -57,7 +63,11 @@ class GroupCursesApp(urwid.MainLoop):
             self.main_screen.focus_position = 'body'
 
     def send_message_handler(self, message):
-        self.input_area.input_field.edit_text = u"Submitted - " + message
+        self.input_area.input_field.set_edit_text(u"")
+        current_conversation = self.conversation_area.conversation_list.get_focused_conversation()
+        date = time.strftime("%H:%M:%S")
+        current_conversation.append_message('me', date, message)
+        self.conversation_area.display_selected_conversation()
 
     def show_status_message_handler(self, message, severity='info'):
         self.input_area.set_message(message, severity)
