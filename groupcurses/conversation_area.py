@@ -15,26 +15,24 @@ class ConversationArea(urwid.Filler):
         else:
             self.display_selected_conversation()
 
-    def request_conversations_update(self):
-        urwid.emit_signal(self, 'get-conversations')
-    
     def update_conversation_list(self, groups, direct_messages):
         for message in direct_messages:
             other_user = message['other_user']
-            conversation = Conversation(other_user['name'], 'direct_message')
-            conversation_wrapper = urwid.AttrMap(conversation, None, 'highlight')
-            self.conversation_list.list.append(conversation_wrapper)
+            other_user_id = other_user['id']
+            other_user_name = other_user['name']
+            self.conversation_list.add_conversation(other_user_id, other_user_name, 'direct_message')
         for group in groups:
+            group_id = group['id']
             group_name = group['name']
-            conversation = Conversation(group_name, 'group')
-            conversation_wrapper = urwid.AttrMap(conversation, None, 'highlight')
-            self.conversation_list.list.append(conversation_wrapper)
+            self.conversation_list.add_conversation(group_id, group_name, 'group')
+
     def display_selected_conversation(self):
         conversation = self.conversation_list.get_focused_conversation()
-        self.message_area.clear()
-        conversation.append_message('system', time.strftime("%H:%M:%S"), 'refresh')
-        for message in conversation.messages:
-            self.message_area.append(message.get_widget())
+        if conversation is not None:
+            self.message_area.clear()
+            conversation.append_message('system', time.strftime("%H:%M:%S"), 'refresh')
+            for message in conversation.messages:
+                self.message_area.append(message.get_widget())
 
 class ConversationColumns(urwid.Columns):
     def __init__(self, conversation_list, message_area):
@@ -45,15 +43,30 @@ class ConversationColumns(urwid.Columns):
 class ConversationList(urwid.ListBox):
     def __init__(self):
         self.list = urwid.SimpleFocusListWalker([])
+        self.list_index = []
         super().__init__(self.list)
     def get_focused_conversation(self):
         # Get the AttrMap wrapper of the focused element out of the tuple
         focused_element_wrapper = self.list.get_focus()[0]
-        focused_element = focused_element_wrapper.original_widget
-        return focused_element
+        if focused_element_wrapper is not None:
+            return focused_element_wrapper.original_widget
+        else:
+            return None
+    def add_conversation(self, cid, name, conversation_type):
+        conversation_index_entry = {
+                'cid': cid,
+                'name': name,
+                'type': conversation_type
+                }
+        if not any(c == conversation_index_entry for c in self.list_index):
+            conversation = Conversation(cid, name, conversation_type)
+            conversation_wrapper = urwid.AttrMap(conversation, None, 'highlight')
+            self.list_index.append(conversation_index_entry)
+            self.list.append(conversation_wrapper)
 
 class Conversation(urwid.Text):
-    def __init__(self, name, conversation_type):
+    def __init__(self, cid, name, conversation_type):
+        self.cid = cid
         self.name = name
         self.conversation_type = conversation_type
         self.messages = [Message('Jess', '12:30', 'Test'), Message('me', '12:31', 'Test2')]
