@@ -69,12 +69,14 @@ class Conversation(urwid.Text):
         self.cid = cid
         self.name = name
         self.conversation_type = conversation_type
-        self.messages = [Message('Jess', '12:30', 'Test'), Message('me', '12:31', 'Test2')]
+        self.messages = []
         super().__init__(name)
     def selectable(self):
         return True
     def keypress(self, size, key):
         return key
+    def get_messages(self):
+        pass
     def append_message(self, sender, date, message):
         self.messages.append(Message(sender, date, message))
 
