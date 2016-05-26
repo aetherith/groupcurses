@@ -2,7 +2,8 @@ import time
 import urwid
 
 class ConversationArea(urwid.Filler):
-    def __init__(self):
+    def __init__(self, api):
+        self.api = api
         self.conversation_list = ConversationList()
         self.message_area = ConversationMessageArea()
         self.column_wrapper = ConversationColumns(self.conversation_list, self.message_area)
@@ -15,7 +16,9 @@ class ConversationArea(urwid.Filler):
         else:
             self.display_selected_conversation()
 
-    def update_conversation_list(self, groups, direct_messages):
+    def update_conversation_list(self):
+        groups = self.api.get('groups')
+        direct_messages = self.api.get('chats')
         for message in direct_messages:
             other_user = message['other_user']
             other_user_id = other_user['id']

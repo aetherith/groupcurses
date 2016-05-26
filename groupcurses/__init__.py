@@ -22,7 +22,7 @@ class GroupCursesApp(urwid.MainLoop):
         self.api = API(self.configuration.api_key)
         self.header_area = HeaderArea()
         self.input_area = InputArea() 
-        self.conversation_area = ConversationArea()
+        self.conversation_area = ConversationArea(self.api)
         self.main_screen = urwid.Frame(self.conversation_area, header=self.header_area, footer=self.input_area)
         self.palette = [
                 ('statusbar', 'black', 'light gray'),
@@ -52,9 +52,7 @@ class GroupCursesApp(urwid.MainLoop):
         urwid.connect_signal(self.input_area, 'message-send', self.send_message_handler)
   
     def conversation_list_refresh_handler(self, main_loop, user_data):
-        groups = self.api.get('groups')
-        direct_messages = self.api.get('chats')
-        self.conversation_area.update_conversation_list(groups, direct_messages)
+        self.conversation_area.update_conversation_list()
         self.set_alarm_in(self.POLL_INTERVAL, self.conversation_list_refresh_handler)
 
     def conversation_messages_refresh_handler(self, main_loop, user_data):
