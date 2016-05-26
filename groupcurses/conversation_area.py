@@ -1,10 +1,12 @@
+import uuid
 import time
+from datetime import datetime
 import urwid
 
 class ConversationArea(urwid.Filler):
     def __init__(self, api):
         self.api = api
-        self.conversation_list = ConversationList()
+        self.conversation_list = ConversationList(api)
         self.message_area = ConversationMessageArea()
         self.column_wrapper = ConversationColumns(self.conversation_list, self.message_area)
         super().__init__(self.column_wrapper, valign='top', height=('relative', 100))
@@ -33,7 +35,6 @@ class ConversationArea(urwid.Filler):
         conversation = self.conversation_list.get_focused_conversation()
         if conversation is not None:
             self.message_area.clear()
-            conversation.append_message('system', time.strftime("%H:%M:%S"), 'refresh')
             for message in conversation.messages:
                 self.message_area.append(message.get_widget())
 
@@ -44,7 +45,8 @@ class ConversationColumns(urwid.Columns):
         super().__init__([(20, self.conversation_list_wrapper), self.message_area_wrapper], box_columns=[0, 1])
 
 class ConversationList(urwid.ListBox):
-    def __init__(self):
+    def __init__(self, api):
+        self.api = api
         self.list = urwid.SimpleFocusListWalker([])
         self.list_index = []
         super().__init__(self.list)
@@ -62,24 +64,51 @@ class ConversationList(urwid.ListBox):
                 'type': conversation_type
                 }
         if not any(c == conversation_index_entry for c in self.list_index):
-            conversation = Conversation(cid, name, conversation_type)
+            conversation = Conversation(self.api, cid, name, conversation_type)
             conversation_wrapper = urwid.AttrMap(conversation, None, 'highlight')
             self.list_index.append(conversation_index_entry)
             self.list.append(conversation_wrapper)
 
 class Conversation(urwid.Text):
-    def __init__(self, cid, name, conversation_type):
+    def __init__(self, api, cid, name, conversation_type):
+        self.api = api
         self.cid = cid
         self.name = name
         self.conversation_type = conversation_type
+        self.messages_index = []
         self.messages = []
+        self.get_messages()
         super().__init__(name)
     def selectable(self):
         return True
     def keypress(self, size, key):
         return key
     def get_messages(self):
-        pass
+        if self.conversation_type == 'direct_message':
+            messages = self.api.get('direct_messages', {'other_user_id': self.cid})['direct_messages']
+        elif self.conversation_type == 'group':
+            messages = self.api.get('groups/' + self.cid + '/messages')['messages']
+        messages.reverse()
+        for message in messages:
+            sender = message['name']
+            date = datetime.fromtimestamp(int(message['created_at'])).strftime("%H:%M:%S")
+            text = message['text']
+            self.append_message(sender, date, text)
+    
+    def send_message(self, message):
+        source_guid = str(uuid.uuid1())
+        date = time.strftime("%H:%M:%S")
+        if self.type == 'direct_message':
+            message_data = {
+                'direct_message': {
+                    'source_guid': source_guid,
+                    'recipient_id': self.cid,
+                    'text': message,
+                }
+            }
+            if self.api.post('direct_messages', user_data=message_data):
+                self.append_message('me', date, message)
+    
     def append_message(self, sender, date, message):
         self.messages.append(Message(sender, date, message))
 

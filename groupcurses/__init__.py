@@ -13,7 +13,7 @@ from input_area import InputArea
 class GroupCursesApp(urwid.MainLoop):
     def __init__(self):
         urwid.set_encoding("UTF-8")
-        self.POLL_INTERVAL = 5
+        self.POLL_INTERVAL = 30
         try:
             self.configuration = Configuration()
         except Exception as e:
@@ -75,8 +75,7 @@ class GroupCursesApp(urwid.MainLoop):
     def send_message_handler(self, message):
         self.input_area.input_field.set_edit_text(u"")
         current_conversation = self.conversation_area.conversation_list.get_focused_conversation()
-        date = time.strftime("%H:%M:%S")
-        current_conversation.append_message('me', date, message)
+        current_conversation.send_message(message)
         self.conversation_area.display_selected_conversation()
 
     def show_status_message_handler(self, message, severity='info'):
