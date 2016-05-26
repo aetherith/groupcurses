@@ -34,6 +34,7 @@ class ConversationArea(urwid.Filler):
     def display_selected_conversation(self):
         conversation = self.conversation_list.get_focused_conversation()
         if conversation is not None:
+            conversation.get_messages()
             self.message_area.clear()
             for message in conversation.messages:
                 self.message_area.append(message.get_widget())
@@ -62,7 +63,7 @@ class ConversationList(urwid.ListBox):
                 'cid': cid,
                 'name': name,
                 'type': conversation_type
-                }
+        }
         if not any(c == conversation_index_entry for c in self.list_index):
             conversation = Conversation(self.api, cid, name, conversation_type)
             conversation_wrapper = urwid.AttrMap(conversation, None, 'highlight')
@@ -90,10 +91,12 @@ class Conversation(urwid.Text):
             messages = self.api.get('groups/' + self.cid + '/messages')['messages']
         messages.reverse()
         for message in messages:
-            sender = message['name']
-            date = datetime.fromtimestamp(int(message['created_at'])).strftime("%H:%M:%S")
-            text = message['text']
-            self.append_message(sender, date, text)
+            if not any(c == {'mid': message['source_guid']} for c in self.messages_index):
+                sender = message['name']
+                date = datetime.fromtimestamp(int(message['created_at'])).strftime("%H:%M:%S")
+                text = message['text']
+                mid = message['source_guid']
+                self.append_message(mid, sender, date, text)
     
     def send_message(self, message):
         source_guid = str(uuid.uuid1())
@@ -107,9 +110,10 @@ class Conversation(urwid.Text):
                 }
             }
             if self.api.post('direct_messages', user_data=message_data):
-                self.append_message('me', date, message)
+                self.append_message(source_guid, 'me', date, message)
     
-    def append_message(self, sender, date, message):
+    def append_message(self, mid, sender, date, message):
+        self.messages_index.append({'mid': mid})
         self.messages.append(Message(sender, date, message))
 
 class ConversationMessageArea(urwid.ListBox):
