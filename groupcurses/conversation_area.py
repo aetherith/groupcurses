@@ -98,7 +98,7 @@ class Conversation(urwid.Text):
     def send_message(self, message):
         source_guid = str(uuid.uuid1())
         date = time.strftime("%H:%M:%S")
-        if self.type == 'direct_message':
+        if self.conversation_type == 'direct_message':
             message_data = {
                 'direct_message': {
                     'source_guid': source_guid,
