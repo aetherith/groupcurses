@@ -13,7 +13,7 @@ from input_area import InputArea
 class GroupCursesApp(urwid.MainLoop):
     def __init__(self):
         urwid.set_encoding("UTF-8")
-        self.POLL_INTERVAL = 30
+        self.POLL_INTERVAL = 10
         try:
             self.configuration = Configuration()
         except Exception as e:
