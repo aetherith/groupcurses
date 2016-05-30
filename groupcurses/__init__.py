@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # encoding: utf-8
-import time
-import threading
-
 import urwid
 
 from groupcurses.api import API
 from groupcurses.configuration import Configuration
+from groupcurses.header import HeaderArea
 from groupcurses.conversation_area import ConversationArea
 from groupcurses.input_area import InputArea
 
@@ -80,19 +78,6 @@ class GroupCursesApp(urwid.MainLoop):
 
     def show_status_message_handler(self, message, severity='info'):
         self.input_area.set_message(message, severity)
-
-
-
-    def get_conversation_messages_handler(self, conversation):
-        if conversation.type == 'chat':
-            pass
-        elif conversation.type == 'group':
-            pass
-
-class HeaderArea(urwid.Padding):
-    def __init__(self):
-        self.title = urwid.Text(u"i:Compose c:Browse n:New q:Quit ESC:Main Mode")
-        super().__init__(urwid.AttrMap(self.title, 'statusbar'))
 
 def main():
     App = GroupCursesApp()
