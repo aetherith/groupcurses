@@ -133,5 +133,7 @@ class Message():
         self.message = message
     def get_widget(self):
         message_widget = urwid.Text(self.message)
-        sender_widget = urwid.Text('(' + self.date + ') ' + self.sender + ': ')
-        return urwid.Columns([('pack', sender_widget), message_widget])
+        date_widget = urwid.Text('(' + self.date + ')')
+        sender_widget = urwid.Text(self.sender + ': ')
+        sender_pile = urwid.Pile([sender_widget, date_widget])
+        return urwid.Columns([('weight', 0.4 , sender_pile), message_widget])
