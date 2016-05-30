@@ -38,6 +38,7 @@ class ConversationArea(urwid.Filler):
             self.message_area.clear()
             for message in conversation.messages:
                 self.message_area.append(message.get_widget())
+            self.message_area.messages.set_focus(len(conversation.messages) - 1)
 
 class ConversationColumns(urwid.Columns):
     def __init__(self, conversation_list, message_area):
