@@ -36,7 +36,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'groupcurses=groupcurses:main',    
+            'gcs=groupcurses:main',    
         ]  
     },
 )

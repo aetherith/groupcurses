@@ -5,10 +5,10 @@ import threading
 
 import urwid
 
-from api import API
-from configuration import Configuration
-from conversation_area import ConversationArea
-from input_area import InputArea
+from groupcurses.api import API
+from groupcurses.configuration import Configuration
+from groupcurses.conversation_area import ConversationArea
+from groupcurses.input_area import InputArea
 
 class GroupCursesApp(urwid.MainLoop):
     def __init__(self):
@@ -94,6 +94,9 @@ class HeaderArea(urwid.Padding):
         self.title = urwid.Text(u"i:Compose c:Browse n:New q:Quit ESC:Main Mode")
         super().__init__(urwid.AttrMap(self.title, 'statusbar'))
 
-if __name__ == "__main__":
+def main():
     App = GroupCursesApp()
     App.run()
+
+if __name__ == "__main__":
+    main()
