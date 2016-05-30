@@ -1,8 +1,8 @@
 #!/usr/bin/env python
+from os import path
+from codecs import open
 
 from setuptools import setup, find_packages
-from codecs import open
-from os import path
 
 here = path.abspath(path.dirname(__file__))
 
@@ -36,7 +36,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'gcs=groupcurses:main',    
-        ]  
+            'gcs=groupcurses:main',
+        ]
     },
 )

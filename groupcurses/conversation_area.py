@@ -25,7 +25,11 @@ class ConversationArea(urwid.Filler):
             other_user = message['other_user']
             other_user_id = other_user['id']
             other_user_name = other_user['name']
-            self.conversation_list.add_conversation(other_user_id, other_user_name, 'direct_message')
+            self.conversation_list.add_conversation(
+                other_user_id,
+                other_user_name,
+                'direct_message'
+            )
         for group in groups:
             group_id = group['id']
             group_name = group['name']
@@ -44,7 +48,10 @@ class ConversationColumns(urwid.Columns):
     def __init__(self, conversation_list, message_area):
         self.conversation_list_wrapper = urwid.LineBox(conversation_list)
         self.message_area_wrapper = urwid.LineBox(message_area)
-        super().__init__([(20, self.conversation_list_wrapper), self.message_area_wrapper], box_columns=[0, 1])
+        super().__init__(
+            [(20, self.conversation_list_wrapper), self.message_area_wrapper],
+            box_columns=[0, 1]
+        )
 
 class ConversationList(urwid.ListBox):
     def __init__(self, api):
@@ -61,9 +68,9 @@ class ConversationList(urwid.ListBox):
             return None
     def add_conversation(self, cid, name, conversation_type):
         conversation_index_entry = {
-                'cid': cid,
-                'name': name,
-                'type': conversation_type
+            'cid': cid,
+            'name': name,
+            'type': conversation_type
         }
         if not any(c == conversation_index_entry for c in self.list_index):
             conversation = Conversation(self.api, cid, name, conversation_type)
@@ -87,7 +94,10 @@ class Conversation(urwid.Text):
         return key
     def get_messages(self):
         if self.conversation_type == 'direct_message':
-            messages = self.api.get('direct_messages', {'other_user_id': self.cid})['direct_messages']
+            messages = self.api.get(
+                'direct_messages',
+                {'other_user_id': self.cid}
+            )['direct_messages']
         elif self.conversation_type == 'group':
             messages = self.api.get('groups/' + self.cid + '/messages')['messages']
         messages.reverse()
@@ -136,4 +146,4 @@ class Message():
         date_widget = urwid.Text('(' + self.date + ')')
         sender_widget = urwid.Text(self.sender + ': ')
         sender_pile = urwid.Pile([sender_widget, date_widget])
-        return urwid.Columns([('weight', 0.4 , sender_pile), message_widget], dividechars=1)
+        return urwid.Columns([('weight', 0.4, sender_pile), message_widget], dividechars=1)

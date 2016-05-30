@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # encoding: utf-8
+"""
+A terminal based application to interact with the GroupMe API.
+"""
 import urwid
 
 from groupcurses.api import API
@@ -9,6 +12,9 @@ from groupcurses.conversation_area import ConversationArea
 from groupcurses.input_area import InputArea
 
 class GroupCursesApp(urwid.MainLoop):
+    """
+
+    """
     def __init__(self):
         urwid.set_encoding("UTF-8")
         self.POLL_INTERVAL = 10
@@ -19,45 +25,67 @@ class GroupCursesApp(urwid.MainLoop):
             raise urwid.ExitMainLoop()
         self.api = API(self.configuration.api_key)
         self.header_area = HeaderArea()
-        self.input_area = InputArea() 
+        self.input_area = InputArea()
         self.conversation_area = ConversationArea(self.api)
-        self.main_screen = urwid.Frame(self.conversation_area, header=self.header_area, footer=self.input_area)
+        self.main_screen = urwid.Frame(
+            self.conversation_area,
+            header=self.header_area,
+            footer=self.input_area
+        )
         self.palette = [
-                ('statusbar', 'black', 'light gray'),
-                ('input_mode', 'white', 'dark red'),
-                ('normal_mode', 'black', 'dark green'),
-                ('highlight', 'black', 'light gray'),
-                ]
-       
+            ('statusbar', 'black', 'light gray'),
+            ('input_mode', 'white', 'dark red'),
+            ('normal_mode', 'black', 'dark green'),
+            ('highlight', 'black', 'light gray'),
+        ]
+
         self.register_signal_emitters()
         self.connect_signal_handlers()
         super().__init__(self.main_screen, self.palette, unhandled_input=self.navigation_handler)
-        
+
         # Initialize the conversation list refresh loop.
         # This should be done before trying to refresh the message area to avoid
         # a wait between first render and messages showing up.
         self.conversation_list_refresh_handler(None, None)
-        
+
         # Initialize the refresh message area refresh loop.
         self.conversation_messages_refresh_handler(None, None)
 
     def register_signal_emitters(self):
+        """
+
+        """
         urwid.register_signal(API, 'show-status-message')
         urwid.register_signal(InputArea, 'message-send')
 
     def connect_signal_handlers(self):
+        """
+
+        """
         urwid.connect_signal(self.api, 'show-status-message', self.show_status_message_handler)
         urwid.connect_signal(self.input_area, 'message-send', self.send_message_handler)
-  
+
     def conversation_list_refresh_handler(self, main_loop, user_data):
+        """
+
+        """
         self.conversation_area.update_conversation_list()
         self.set_alarm_in(self.POLL_INTERVAL, self.conversation_list_refresh_handler)
 
     def conversation_messages_refresh_handler(self, main_loop, user_data):
+        """
+
+        """
         self.conversation_area.display_selected_conversation()
         self.set_alarm_in(self.POLL_INTERVAL, self.conversation_messages_refresh_handler)
-    
+
     def navigation_handler(self, key):
+        """
+        Handle any keyboard input not already handled by another widget.
+
+        This is where we switch focus between our different input areas and
+        summon new dialogs when required.
+        """
         if key is 'q':
             raise urwid.ExitMainLoop()
         if key is 'i':
