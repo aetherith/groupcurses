@@ -31,8 +31,8 @@ setup(
     keywords='chat GroupMe messaging',
     packages=find_packages(exclude=['docs', 'tests']),
     install_requires=[
-        'urwid',
-        'requests',
+        'urwid~=1.3.1',
+        'requests~=2.10.0',
     ],
     entry_points={
         'console_scripts': [
