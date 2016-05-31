@@ -96,6 +96,7 @@ class GroupCursesApp(urwid.MainLoop):
             self.conversation_area.focus_position = 0
         if key is 'esc':
             self.input_area.set_mode('normal')
+            self.show_status_message_handler(u"")
             self.main_screen.focus_position = 'body'
 
     def send_message_handler(self, message):

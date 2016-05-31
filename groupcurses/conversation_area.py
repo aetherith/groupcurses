@@ -140,7 +140,10 @@ class Message():
     def __init__(self, sender, date, message):
         self.sender = sender
         self.date = date
-        self.message = message
+        if message is not None:
+            self.message = message
+        else:
+            self.message = ''
     def get_widget(self):
         message_widget = urwid.Text(self.message)
         date_widget = urwid.Text('(' + self.date + ')')
