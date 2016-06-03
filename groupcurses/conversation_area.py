@@ -21,19 +21,21 @@ class ConversationArea(urwid.Filler):
     def update_conversation_list(self):
         groups = self.api.get('groups')
         direct_messages = self.api.get('chats')
-        for message in direct_messages:
-            other_user = message['other_user']
-            other_user_id = other_user['id']
-            other_user_name = other_user['name']
-            self.conversation_list.add_conversation(
-                other_user_id,
-                other_user_name,
-                'direct_message'
-            )
-        for group in groups:
-            group_id = group['id']
-            group_name = group['name']
-            self.conversation_list.add_conversation(group_id, group_name, 'group')
+        if direct_messages is not None:
+            for message in direct_messages:
+                other_user = message['other_user']
+                other_user_id = other_user['id']
+                other_user_name = other_user['name']
+                self.conversation_list.add_conversation(
+                    other_user_id,
+                    other_user_name,
+                    'direct_message'
+                )
+        if groups is not None:
+            for group in groups:
+                group_id = group['id']
+                group_name = group['name']
+                self.conversation_list.add_conversation(group_id, group_name, 'group')
 
     def display_selected_conversation(self):
         conversation = self.conversation_list.get_focused_conversation()
