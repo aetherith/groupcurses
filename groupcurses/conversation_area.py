@@ -119,11 +119,13 @@ class Conversation(urwid.Text):
                 'direct_message': {
                     'source_guid': source_guid,
                     'recipient_id': self.cid,
-                    'text': message,
+                    'text': message[:1000],
                 }
             }
             if self.api.post('direct_messages', user_data=message_data):
                 self.append_message(source_guid, 'me', date, message)
+        if len(message) > 1000:
+            self.send_message(message[1000:])
     
     def append_message(self, mid, sender, date, message):
         self.messages_index.append({'mid': mid})
