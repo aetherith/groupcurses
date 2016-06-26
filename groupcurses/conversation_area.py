@@ -123,7 +123,7 @@ class Conversation(urwid.Text):
                 }
             }
             if self.api.post('direct_messages', user_data=message_data):
-                self.append_message(source_guid, 'me', date, message)
+                self.append_message(source_guid, 'me', date, message[:1000])
         if len(message) > 1000:
             self.send_message(message[1000:])
     
