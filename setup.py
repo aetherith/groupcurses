@@ -33,6 +33,7 @@ setup(
     install_requires=[
         'urwid~=1.3.1',
         'requests~=2.10.0',
+        'ruamel.yaml~=0.11.11',
     ],
     entry_points={
         'console_scripts': [
