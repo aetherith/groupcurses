@@ -30,6 +30,8 @@ setup(
     ],
     keywords='chat GroupMe messaging',
     packages=find_packages(exclude=['docs', 'tests']),
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', 'pylint'],
     install_requires=[
         'urwid~=1.3.1',
         'requests~=2.10.0',
