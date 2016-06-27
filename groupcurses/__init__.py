@@ -5,7 +5,7 @@ A terminal based application to interact with the GroupMe API.
 """
 import urwid
 
-from groupcurses.api import API
+from groupcurses.groupme_api import GroupMeAPI
 from groupcurses.configuration import Configuration
 from groupcurses.header import HeaderArea
 from groupcurses.conversation_area import ConversationArea
@@ -23,10 +23,12 @@ class GroupCursesApp(urwid.MainLoop):
         except Exception as e:
             print(e)
             raise urwid.ExitMainLoop()
-        self.api = API(self.configuration.api_key)
+        self.apis = {}
+        if 'groupme' in self.configuration.config['general']['interfaces']:
+            self.apis['groupme'] = GroupMeAPI(self.configuration.config['groupme']['api_key'])
         self.header_area = HeaderArea()
         self.input_area = InputArea()
-        self.conversation_area = ConversationArea(self.api)
+        self.conversation_area = ConversationArea(self.apis)
         self.main_screen = urwid.Frame(
             self.conversation_area,
             header=self.header_area,
@@ -55,14 +57,16 @@ class GroupCursesApp(urwid.MainLoop):
         """
 
         """
-        urwid.register_signal(API, 'show-status-message')
+        if 'groupme' in self.configuration.config['general']['interfaces']:
+            urwid.register_signal(GroupMeAPI, 'show-status-message')
         urwid.register_signal(InputArea, 'message-send')
 
     def connect_signal_handlers(self):
         """
 
         """
-        urwid.connect_signal(self.api, 'show-status-message', self.show_status_message_handler)
+        if 'groupme' in self.configuration.config['general']['interfaces']:
+            urwid.connect_signal(self.apis['groupme'], 'show-status-message', self.show_status_message_handler)
         urwid.connect_signal(self.input_area, 'message-send', self.send_message_handler)
 
     def conversation_list_refresh_handler(self, main_loop, user_data):

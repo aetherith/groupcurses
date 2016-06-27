@@ -3,9 +3,11 @@ import urwid
 from groupcurses.conversation import Conversation
 
 class ConversationArea(urwid.Filler):
-    def __init__(self, api):
-        self.api = api
-        self.conversation_list = ConversationList(api)
+    def __init__(self, apis):
+        self.apis = apis
+        # Temporary hack which forces the conversation area to only use GroupMe
+        self.api = self.apis['groupme']
+        self.conversation_list = ConversationList(self.api)
         self.message_area = ConversationMessageArea()
         self.column_wrapper = ConversationColumns(self.conversation_list, self.message_area)
         super().__init__(self.column_wrapper, valign='top', height=('relative', 100))

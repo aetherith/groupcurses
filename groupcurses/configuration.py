@@ -21,4 +21,3 @@ class Configuration:
                         pass
             except IOError:
                 pass
-        self.api_key = self.config['groupme']['api_key']

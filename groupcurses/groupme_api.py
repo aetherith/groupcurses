@@ -1,7 +1,7 @@
 import urwid
 import requests
 
-class API():
+class GroupMeAPI():
     def __init__(self, api_key):
         self.api_key = api_key
         self.base_url = 'https://api.groupme.com/v3/'
@@ -17,6 +17,7 @@ class API():
             return resp['response']
         else:
             urwid.emit_signal(self, 'show-status-message', resp['meta']['errors'][0])
+    
     def post(self, route, user_params=None, user_data=None):
         params = self.base_params.copy()
         if user_params is not None:
@@ -24,9 +25,33 @@ class API():
         if user_data is None:
             user_data = {}
         req = requests.post(self.base_url + route, params=params, json=user_data)
-        
+
         resp = req.json()
         if req.status_code is 201:
             return resp['response']
         else:
             urwid.emit_signal(self, 'show-status-message', resp['meta']['errors'][0])
+
+    def send_message(self):
+        """
+        Send a simple text message through the GroupMe API.
+        """
+        pass
+
+    def get_messages(self):
+        """
+        Retrieve all new messages available from the endpoint.
+        """
+        pass
+
+    def send_picture_message(self):
+        """
+        Thumbnail and send an image message through GroupMe API.
+        """
+        pass
+
+    def download_picture_message(self):
+        """
+        Download a single picture message from GroupMe and save it locally.
+        """
+        pass
