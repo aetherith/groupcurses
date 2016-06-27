@@ -13,15 +13,15 @@ from groupcurses.input_area import InputArea
 
 class GroupCursesApp(urwid.MainLoop):
     """
-
+    A terminal based application to interact with multiple chat APIs.
     """
     def __init__(self):
         urwid.set_encoding("UTF-8")
         self.POLL_INTERVAL = 10
         try:
             self.configuration = Configuration()
-        except Exception as e:
-            print(e)
+        except Exception as error:
+            print(error)
             raise urwid.ExitMainLoop()
         self.apis = {}
         if 'groupme' in self.configuration.config['general']['interfaces']:
@@ -55,7 +55,7 @@ class GroupCursesApp(urwid.MainLoop):
 
     def register_signal_emitters(self):
         """
-
+        Inform urwid of which classes will be sending specific signals.
         """
         if 'groupme' in self.configuration.config['general']['interfaces']:
             urwid.register_signal(GroupMeAPI, 'show-status-message')
@@ -63,22 +63,30 @@ class GroupCursesApp(urwid.MainLoop):
 
     def connect_signal_handlers(self):
         """
-
+        Configure urwid to dispatch handlers when specific events fire.
         """
         if 'groupme' in self.configuration.config['general']['interfaces']:
-            urwid.connect_signal(self.apis['groupme'], 'show-status-message', self.show_status_message_handler)
-        urwid.connect_signal(self.input_area, 'message-send', self.send_message_handler)
+            urwid.connect_signal(
+                self.apis['groupme'],
+                'show-status-message',
+                self.show_status_message_handler
+            )
+        urwid.connect_signal(
+            self.input_area,
+            'message-send',
+            self.send_message_handler
+        )
 
     def conversation_list_refresh_handler(self, main_loop, user_data):
         """
-
+        Update conversation list and set trigger for next update.
         """
         self.conversation_area.update_conversation_list()
         self.set_alarm_in(self.POLL_INTERVAL, self.conversation_list_refresh_handler)
 
     def conversation_messages_refresh_handler(self, main_loop, user_data):
         """
-
+        Update current conversation's message list and set trigger to poll again.
         """
         self.conversation_area.display_selected_conversation()
         self.set_alarm_in(self.POLL_INTERVAL, self.conversation_messages_refresh_handler)
@@ -104,17 +112,29 @@ class GroupCursesApp(urwid.MainLoop):
             self.main_screen.focus_position = 'body'
 
     def send_message_handler(self, message):
+        """
+        Handle grabbing the correct conversation API and sending message.
+        """
         self.input_area.input_field.set_edit_text(u"")
         current_conversation = self.conversation_area.conversation_list.get_focused_conversation()
         current_conversation.send_message(message)
         self.conversation_area.display_selected_conversation()
 
     def show_status_message_handler(self, message, severity='info'):
+        """
+        Display a status message to the user in the flightline.
+
+        This method will eventually be extended to include different message
+        colors based on the severity of the message.
+        """
         self.input_area.set_message(message, severity)
 
 def main():
-    App = GroupCursesApp()
-    App.run()
+    """
+    Default application instantiation.
+    """
+    app = GroupCursesApp()
+    app.run()
 
 if __name__ == "__main__":
     main()
