@@ -16,6 +16,33 @@ against urwid v1.3.1 and requests v2.10.0 so you'll need access to those and
 have them running in Python 3.5. This really is my first major Python project
 so I haven't done a lot of testing for what versions of Python it works with.
 
+# Configuration
+
+You can configure the client by creating a YAML file in one of the following
+locations. They are listed in order of preference and the first valid file
+located is used. The listed locations are searched for a file named 
+`.groupcursesrc`:
+
+* Current directory `./`
+* XDG default config home `~/.config/groupcurses`
+* User home directory `~/`
+* Global configuration directory `/etc/groupcurses`
+* Environment specified directory `$GROUPCURSES_CONF`
+
+Currently, the application only supports integration with GroupMe but additional
+backends are possible. The example below is the minimum required configuration
+file to use the GroupMe integration.
+
+```yaml
+---
+general:
+    interfaces:
+        - groupme
+
+groupme:
+    api_key: <GroupMe developer API key>
+```
+
 # Use
 
 The biggest thing is the vim like interface. Currently there are 3 modes for
