@@ -57,13 +57,6 @@ New messages can be composed by hitting `i` to enter Compose mode which shifts
 focus to the textbox at the bottom of the application. Messages are sent when
 you hit enter.
 
-# Outstanding Tasks
-* Create new direct messages
-* Group messages - the whole workflow
-* Emoji
-* Improve the message sync methods so that they request only new messages.
-* Improve the message area so that it supports scrolling better.
-
 [groupme]: https://groupme.com
 [urwid]: http://urwid.org/index.html
 [requests]: http://docs.python-requests.org/en/master/
