@@ -1,10 +1,13 @@
+"""
+Implements basic tests against the GroupMe API implementation.
+"""
 import pytest
 from pytest_localserver.http import WSGIServer
 import groupme_mock_server
 
 def pytest_funcarg__groupme_api_server(request):
     """
-
+    Creates a PyTest functional argument out of Flask WSGI server mockup.
     """
     server = WSGIServer(application=groupme_mock_server.app)
     server.start()
