@@ -5,23 +5,44 @@ This application exists to help test the chat application GroupCurses. It
 implements the API defined at https://dev.groupme.com/docs/v3 and provides mock
 responses to queries.
 """
+from functools import wraps
+
 from flask import Flask
 from flask import request
 from flask import jsonify
 
+import groupme_mock_config
+
 app = Flask(__name__)
 
-@app.before_request
-def check_auth_token():
+def checks_auth_token(f):
     """
-    A shim to replicate the authentication token checking done by GroupMe.
+    A decorator to replicate the authentication token checking done by GroupMe.
 
     Compares the passed value to the value loaded from groupme_mock_config and
     only allows the request to complete if it matches.
     """
-    print(request.args.get('token'))
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.args.get('token')
+        if not token or token != groupme_mock_config.correct_api_key:
+            def authentication_error(*args, **kwargs):
+                message = {
+                    "meta": {
+                        "code": 401,
+                        "errors": ["unauthorized"]
+                    },
+                    "response": None
+                }
+                resp = jsonify(message)
+                resp.status_code = 401
+                return resp
+            return authentication_error()
+        return f(*args, **kwargs)
+    return decorated
 
 @app.route('/')
+@checks_auth_token
 def hello_world():
     return jsonify(response={
         'text': 'Hello, world!'

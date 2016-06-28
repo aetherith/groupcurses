@@ -4,6 +4,7 @@ Implements basic tests against the GroupMe API implementation.
 import pytest
 from pytest_localserver.http import WSGIServer
 import groupme_mock_server
+import groupme_mock_config
 
 def pytest_funcarg__groupme_api_server(request):
     """
@@ -17,7 +18,7 @@ def pytest_funcarg__groupme_api_server(request):
 @pytest.fixture
 def groupme_api(groupme_api_server):
     import groupcurses.groupme_api
-    api = groupcurses.groupme_api.GroupMeAPI('1234')
+    api = groupcurses.groupme_api.GroupMeAPI(groupme_mock_config.correct_api_key)
     api.base_url = groupme_api_server.url
     return api
 
