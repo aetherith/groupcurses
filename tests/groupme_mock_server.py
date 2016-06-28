@@ -49,6 +49,7 @@ def hello_world():
     })
 
 @app.route('/groups')
+@checks_auth_token
 def index_groups():
     """
     List the authenticated user's active groups.
