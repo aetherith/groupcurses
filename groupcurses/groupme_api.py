@@ -11,26 +11,33 @@ class GroupMeAPI():
         params = self.base_params.copy()
         if user_params is not None:
             params.update(user_params)
-        req = requests.get(self.base_url + route, params=params)
-        resp = req.json()
-        if req.status_code is 200:
-            return resp['response']
-        else:
-            urwid.emit_signal(self, 'show-status-message', resp['meta']['errors'][0])
-    
+        try:
+            req = requests.get(self.base_url + route, params=params)
+            resp = req.json()
+            if req.status_code is 200:
+                return resp['response']
+            else:
+                urwid.emit_signal(self, 'show-status-message', resp['meta']['errors'][0])
+        except requests.exceptions.ConnectionError:
+            urwid.emit_signal(self, 'show-status-message', 'Failed to connect to API endpoint.')
+            self.get(route, user_params)
+
     def post(self, route, user_params=None, user_data=None):
         params = self.base_params.copy()
         if user_params is not None:
             params.update(user_params)
         if user_data is None:
             user_data = {}
-        req = requests.post(self.base_url + route, params=params, json=user_data)
-
-        resp = req.json()
-        if req.status_code is 201:
-            return resp['response']
-        else:
-            urwid.emit_signal(self, 'show-status-message', resp['meta']['errors'][0])
+        try:
+            req = requests.post(self.base_url + route, params=params, json=user_data)
+            resp = req.json()
+            if req.status_code is 201:
+                return resp['response']
+            else:
+                urwid.emit_signal(self, 'show-status-message', resp['meta']['errors'][0])
+        except requests.exceptions.ConnectionError:
+            urwid.emit_signal(self, 'show-status-message', 'Failed to connect to API endpoint.')
+            self.post(route, user_params, user_data)
 
     def send_message(self):
         """
