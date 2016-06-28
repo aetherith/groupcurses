@@ -1,12 +1,12 @@
 import pytest
 from pytest_localserver.http import WSGIServer
-import groupme_mock
+import groupme_mock_server
 
 def pytest_funcarg__groupme_api_server(request):
     """
 
     """
-    server = WSGIServer(application=groupme_mock.app)
+    server = WSGIServer(application=groupme_mock_server.app)
     server.start()
     request.addfinalizer(server.stop)
     return server
@@ -19,6 +19,6 @@ def groupme_api(groupme_api_server):
     return api
 
 def test_get(groupme_api, groupme_api_server):
-    groupme_api.get('')
+    assert groupme_api.get('') == {'text': 'Hello, world!'}
 
 
