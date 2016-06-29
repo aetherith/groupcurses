@@ -1,0 +1,8 @@
+coverage==4.1
+coveralls==1.1
+Flask==0.11.1
+pylint==1.5.5
+pytest==2.9.2
+pytest-cov==2.2.1
+pytest-localserver==0.3.5
+pytest-runner==2.8
