@@ -1,5 +1,5 @@
 # GroupCurses
-[Build Status](https://travis-ci.org/aetherith/groupcurses.svg?branch=master)](https://travis-ci.org/aetherith/groupcurses)[![Coverage Status](https://coveralls.io/repos/github/aetherith/groupcurses/badge.svg?branch=master)](https://coveralls.io/github/aetherith/groupcurses?branch=master)
+[![Build Status](https://travis-ci.org/aetherith/groupcurses.svg?branch=master)](https://travis-ci.org/aetherith/groupcurses)[![Coverage Status](https://coveralls.io/repos/github/aetherith/groupcurses/badge.svg?branch=master)](https://coveralls.io/github/aetherith/groupcurses?branch=master)
 
 I've recently started using [GroupMe][groupme] a lot more to keep in contact
 with a few people. Unfortunately, the existing commandline applications to
