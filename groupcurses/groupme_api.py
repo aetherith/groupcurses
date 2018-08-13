@@ -39,17 +39,35 @@ class GroupMeAPI():
             urwid.emit_signal(self, 'show-status-message', 'Failed to connect to API endpoint.')
             self.post(route, user_params, user_data)
 
-    def send_message(self):
+    def send_message(self, conversation_type, cid, source_guid, message):
         """
         Send a simple text message through the GroupMe API.
         """
-        pass
+        if conversation_type == 'direct_message':
+            message_data = {
+                'direct_message': {
+                    'source_guid': source_guid,
+                    'recipient_id': cid,
+                    'text': message[:1000],
+                }        
+            }
+            return self.post('direct_messages', user_data=message_data)
+        else:
+            return False
 
-    def get_messages(self):
+    def get_messages(self, conversation_type, cid):
         """
         Retrieve all new messages available from the endpoint.
         """
-        pass
+        if conversation_type == 'direct_message':
+            messages = self.get(
+                'direct_messages',
+                {'other_user_id': cid}
+            )['direct_messages']
+        elif conversation_type == 'group':
+            messages = self.get('groups/' + cid + '/messages')['messages']
+        messages.reverse()
+        return messages
 
     def send_picture_message(self):
         """

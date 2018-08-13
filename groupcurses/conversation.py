@@ -1,4 +1,3 @@
-
 import uuid
 import time
 from datetime import datetime
@@ -17,19 +16,15 @@ class Conversation(urwid.Text):
         self.messages = []
         self.get_messages()
         super().__init__(name)
+
     def selectable(self):
         return True
+
     def keypress(self, size, key):
         return key
+
     def get_messages(self):
-        if self.conversation_type == 'direct_message':
-            messages = self.api.get(
-                'direct_messages',
-                {'other_user_id': self.cid}
-            )['direct_messages']
-        elif self.conversation_type == 'group':
-            messages = self.api.get('groups/' + self.cid + '/messages')['messages']
-        messages.reverse()
+        messages = self.api.get_messages(self.conversation_type, self.cid)
         for message in messages:
             if not any(c == {'mid': message['source_guid']} for c in self.messages_index):
                 sender = message['name']
@@ -39,18 +34,21 @@ class Conversation(urwid.Text):
                 self.append_message(mid, sender, date, text)
     
     def send_message(self, message):
+        """
+        Send a text message.
+
+        TODO: Find a way to decouple the max message length.
+        """
         source_guid = str(uuid.uuid1())
         date = time.strftime("%H:%M:%S")
-        if self.conversation_type == 'direct_message':
-            message_data = {
-                'direct_message': {
-                    'source_guid': source_guid,
-                    'recipient_id': self.cid,
-                    'text': message[:1000],
-                }
-            }
-            if self.api.post('direct_messages', user_data=message_data):
-                self.append_message(source_guid, 'me', date, message[:1000])
+        self.api.send_message(
+            self.conversation_type,
+            self.cid,
+            source_guid,
+            message[:1000]
+        )
+        if self.api.send_message(self.conversation_type, self.cid, source_guid, message):
+            self.append_message(source_guid, 'me', date, message[:1000])
         if len(message) > 1000:
             self.send_message(message[1000:])
     
